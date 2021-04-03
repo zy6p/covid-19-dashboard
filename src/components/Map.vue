@@ -1,5 +1,5 @@
 <template>
-$END$
+  <div id = "mainMap" class="inside" > </div>
 </template>
 
 <script>
@@ -9,5 +9,5 @@ name: "Map.vue"
 </script>
 
 <style scoped>
-
+.inside{margin: 0;height: 200px; width: 400px}
 </style>

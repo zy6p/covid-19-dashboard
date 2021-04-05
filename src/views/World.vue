@@ -3,14 +3,25 @@
   <AppHeaderCard :title="'康复： ' + worldTotalData.totals.recovered.slice(-1)" type="success"></AppHeaderCard>
   <AppHeaderCard :title="'死亡： ' + worldTotalData.totals.deaths.slice(-1)" type="info"></AppHeaderCard>
   <div id="map"></div>
+  <div id="chart" style="width: 100%;height:800px;"></div>
 </template>
 
 <script>
 import AppHeaderCard from "../components/AppHeaderCard";
 import L from "leaflet";
 import * as topojson from "topojson-client";
-const worldData = require("../static/resource/data.json");
 import 'leaflet.chinatmsproviders'
+import * as echarts from "echarts/core";
+import { GridComponent, LegendComponent } from 'echarts/components';
+import { BarChart } from 'echarts/charts';
+import { CanvasRenderer } from 'echarts/renderers';
+
+const worldData = require("../static/resource/data.json");
+const countriesName = Object.keys(worldData.countries);
+
+echarts.use(
+    [GridComponent, LegendComponent, BarChart, CanvasRenderer]
+);
 
 L.TopoJSON = L.GeoJSON.extend({
   addData: function (jsonData) {
@@ -36,6 +47,9 @@ export default {
       baseLayers: null,
       globalTopoLayer: null,
       globalCovidLayer: null,
+
+      myChart: null,
+      chartOption: null,
     }
   },
   components: {
@@ -46,6 +60,7 @@ export default {
     this.addTopoJson();
     this.addCovidLayer();
     this.addLayerControl();
+    this.initCharts();
   },
 
   methods: {
@@ -97,7 +112,8 @@ export default {
       const country = require("../static/resource/countries.json");
       // console.log(country)
       this.globalCovidLayer = new L.GeoJSON(country, {
-        style: () => ({color: '#99FF85', weight: 0.25})
+        pointToLatLng: function (feature, latlng) {
+          return L.marker(latlng, { }) }
       }).bindPopup(function (layer) {
         return layer.feature.properties.COUNTRY;
       }).addTo(this.map);
@@ -118,6 +134,62 @@ export default {
       }
       layer.bindPopup(popupContent);
     },
+
+    initCharts() {
+      let chartDom = document.getElementById('chart');
+      this.myChart = echarts.init(chartDom, 'dark');
+      var ch = this.myChart;
+
+      var dailyData = [];
+      var timeStamp = 0;
+      var chartOption = {
+        xAxis: {
+          max: 'dataMax',
+        },
+        yAxis: {
+          type: 'category',
+          data: countriesName,
+          inverse: true,
+          animationDuration: 300,
+          animationDurationUpdate: 300,
+          max: 19, // only the largest 3 bars will be displayed
+        },
+        series: [{
+          realtimeSort: true,
+          name: '确诊数量',
+          type: 'bar',
+          data: dailyData,
+          label: {
+            show: true,
+            position: 'right',
+            valueAnimation: true
+          }
+        }],
+        legend: {
+          show: true
+        },
+        animationDuration: 0,
+        animationDurationUpdate: 3000,
+        animationEasing: 'linear',
+        animationEasingUpdate: 'linear',
+      };
+
+      function run() {
+        for (var i = 0; i < countriesName.length; i++) {
+          dailyData[i] = worldData.countries['' + countriesName[i] + ''].cases[timeStamp];
+        }
+        timeStamp += 1;
+        ch.setOption(chartOption);
+      }
+
+      setTimeout(function () {
+        run();
+      }, 0);
+
+      setInterval(function () {
+        run();
+      }, 3000);
+    }
 
 
   }

@@ -9,7 +9,8 @@
   },
   "dependencies": {
     "core-js": "^3.6.5",
-    "element-plus": "*",
+    "echarts": "^5.0.2",
+    "element-plus": "^1.0.2-beta.36",
     "leaflet": "^1.7.1",
     "topojson": "^3.0.2",
     "topojson-client": "^3.0.0",

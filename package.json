@@ -1,6 +1,6 @@
 {
   "name": "covid-19-dashboard",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
@@ -9,13 +9,8 @@
   },
   "dependencies": {
     "core-js": "^3.6.5",
-    "echarts": "^5.0.2",
-    "element-plus": "^1.0.2-beta.36",
-    "leaflet": "^1.7.1",
-    "topojson": "^3.0.2",
-    "topojson-client": "^3.0.0",
-    "vue": "^3.0.0",
-    "vue-router": "^4.0.5"
+    "element-plus": "*",
+    "vue": "^3.0.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
@@ -23,10 +18,13 @@
     "@vue/cli-service": "~4.5.0",
     "@vue/compiler-sfc": "^3.0.0",
     "babel-eslint": "^10.1.0",
-    "babel-plugin-import": "^1.13.3",
+    "echarts": "^5.0.2",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^7.0.0",
-    "leaflet.chinatmsproviders": "^3.0.4"
+    "leaflet": "^1.7.1",
+    "leaflet.chinatmsproviders": "^3.0.4",
+    "topojson-client": "^3.1.0",
+    "vue-router": "^4.0.5"
   },
   "eslintConfig": {
     "root": true,

@@ -4,8 +4,8 @@
   <AppHeaderCard :title="'死亡： ' + worldTotalData.totals.deaths.slice(-1)" type="info"></AppHeaderCard>
   <div id="map"></div>
   <div class="block">
-    <span class="demonstration">时间轴: {{ ChartShowTime }}</span>
-    <el-slider v-model="timeStamp" :show-tooltip="false"></el-slider>
+    <span id="ChartShowTimeSpan" class="demonstration">时间轴: {{ ChartShowTime }}</span>
+    <el-slider id="timeSlider" v-model="timeStamp" min="0" :max="countriesName.length" step="1" :show-tooltip="false"></el-slider>
   </div>
   <div id="chart" style="width: 100%;height:800px;"></div>
 </template>
@@ -17,31 +17,28 @@ import * as topojson from "topojson-client";
 import 'leaflet.chinatmsproviders'
 import * as echarts from "echarts/core";
 import 'element-plus/lib/theme-chalk/el-slider.css';
-import { GridComponent, LegendComponent } from 'echarts/components';
-import { BarChart } from 'echarts/charts';
-import { CanvasRenderer } from 'echarts/renderers';
+import {GridComponent, LegendComponent} from 'echarts/components';
+import {BarChart} from 'echarts/charts';
+import {CanvasRenderer} from 'echarts/renderers';
 
+echarts.use(
+    [GridComponent, LegendComponent, BarChart, CanvasRenderer]
+);
+
+// Leaflet bugs
 delete L.Icon.Default.prototype._getIconUrl;
-
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
   iconUrl: require('leaflet/dist/images/marker-icon.png'),
   shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
 });
 
-const worldData = require("../static/resource/data.json");
-const countriesName = Object.keys(worldData.countries);
-
-echarts.use(
-  [GridComponent, LegendComponent, BarChart, CanvasRenderer]
-);
-
 L.TopoJSON = L.GeoJSON.extend({
   addData: function (jsonData) {
     if (jsonData.type === "Topology") {
       for (let key in jsonData.objects) {
         let geojson = topojson.feature(jsonData,
-          jsonData.objects[key]);
+            jsonData.objects[key]);
         L.GeoJSON.prototype.addData.call(this, geojson);
       }
     } else {
@@ -50,21 +47,39 @@ L.TopoJSON = L.GeoJSON.extend({
   }
 });
 
-var timeStamp = 0;
+const worldData = require("../static/resource/data.json");
+const countriesName = Object.keys(worldData.countries);
+
+let timeStamp = 0;
+let dailyData = [];
+
+function chartRun(chart, option) {
+  for (let i = 0; i < countriesName.length; i++) {
+    dailyData[i] = worldData.countries['' + countriesName[i] + ''].cases[timeStamp];
+  }
+  timeStamp = timeStamp < countriesName.length ? (timeStamp + 1) : countriesName.length;
+  let chartShowTimeSpan = document.getElementById('ChartShowTimeSpan');
+  let timeSlider = document.getElementById('timeSlider');
+  console.log(timeSlider.value);
+    // timeSlider.value = worldData.series[timeStamp];
+  chartShowTimeSpan.value = '时间轴:' + worldData.series[timeStamp];
+  chart.setOption(option);
+}
+
 export default {
   name: "World",
   data() {
     return {
       map: null,
       worldTotalData: worldData,
+      countriesName,
       myStyle: null,
       ChartShowTime: worldData.series[timeStamp],
       baseLayers: null,
       globalTopoLayer: null,
       globalCovidLayer: null,
-
+      timeStamp,
       myChart: null,
-      chartOption: null,
     }
   },
   components: {
@@ -147,14 +162,14 @@ export default {
       layer.bindPopup(popupContent);
     },
 
-    initCharts() {
+    initCharts: function () {
       let chartDom = document.getElementById('chart', null, {renderer: 'svg'});
       this.myChart = echarts.init(chartDom, 'dark');
-      var ch = this.myChart;
-      var typeOfData = 'Cases'
+      let tempChart = this.myChart;
 
-      var dailyData = [];
-      var chartOption = {
+      let typeOfData = 'Cases';
+
+      let chartOption = {
         title: {
           text: 'Global Covid-19 ' + typeOfData
         },
@@ -189,22 +204,24 @@ export default {
         animationEasingUpdate: 'linear',
       };
 
-      function run() {
-        for (var i = 0; i < countriesName.length; i++) {
-          dailyData[i] = worldData.countries['' + countriesName[i] + ''].cases[timeStamp];
-        }
-        timeStamp = timeStamp < countriesName.length ? (timeStamp + 1) : countriesName.length;
-        ch.setOption(chartOption);
-      }
-
       setTimeout(function () {
-        run();
+        chartRun(tempChart, chartOption);
       }, 0);
 
       setInterval(function () {
-        run();
+        chartRun(tempChart, chartOption);
       }, 3000);
-    }
+    },
+
+    addTimeSlider() {
+      let chartShowTimeSpan = document.getElementById('ChartShowTimeSpan');
+      let timeSlider = document.getElementById('timeSlider');
+      timeSlider.addEventListener("input", function (v) {
+        timeStamp = v;
+        // timeSlider.value = worldData.series[timeStamp];
+        chartShowTimeSpan.value = '时间轴:' + worldData.series[timeStamp];
+      });
+    },
 
 
   }

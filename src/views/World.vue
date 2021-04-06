@@ -3,6 +3,10 @@
   <AppHeaderCard :title="'康复： ' + worldTotalData.totals.recovered.slice(-1)" type="success"></AppHeaderCard>
   <AppHeaderCard :title="'死亡： ' + worldTotalData.totals.deaths.slice(-1)" type="info"></AppHeaderCard>
   <div id="map"></div>
+  <div class="block">
+    <span class="demonstration">时间轴: {{ ChartShowTime }}</span>
+    <el-slider v-model="timeStamp" :show-tooltip="false"></el-slider>
+  </div>
   <div id="chart" style="width: 100%;height:800px;"></div>
 </template>
 
@@ -12,6 +16,7 @@ import L from "leaflet";
 import * as topojson from "topojson-client";
 import 'leaflet.chinatmsproviders'
 import * as echarts from "echarts/core";
+import 'element-plus/lib/theme-chalk/el-slider.css';
 import { GridComponent, LegendComponent } from 'echarts/components';
 import { BarChart } from 'echarts/charts';
 import { CanvasRenderer } from 'echarts/renderers';
@@ -28,7 +33,7 @@ const worldData = require("../static/resource/data.json");
 const countriesName = Object.keys(worldData.countries);
 
 echarts.use(
-    [GridComponent, LegendComponent, BarChart, CanvasRenderer]
+  [GridComponent, LegendComponent, BarChart, CanvasRenderer]
 );
 
 L.TopoJSON = L.GeoJSON.extend({
@@ -36,7 +41,7 @@ L.TopoJSON = L.GeoJSON.extend({
     if (jsonData.type === "Topology") {
       for (let key in jsonData.objects) {
         let geojson = topojson.feature(jsonData,
-            jsonData.objects[key]);
+          jsonData.objects[key]);
         L.GeoJSON.prototype.addData.call(this, geojson);
       }
     } else {
@@ -45,6 +50,7 @@ L.TopoJSON = L.GeoJSON.extend({
   }
 });
 
+var timeStamp = 0;
 export default {
   name: "World",
   data() {
@@ -52,6 +58,7 @@ export default {
       map: null,
       worldTotalData: worldData,
       myStyle: null,
+      ChartShowTime: worldData.series[timeStamp],
       baseLayers: null,
       globalTopoLayer: null,
       globalCovidLayer: null,
@@ -85,9 +92,9 @@ export default {
       let Gaodimage = L.layerGroup([Gaodimgem, Gaodimga]);
       // 图层
       let OpenStreetMap = L.tileLayer(
-          'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap'
-          }
+        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap'
+        }
       );
       let MapBoxStreet = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
         maxZoom: 18,
@@ -119,10 +126,7 @@ export default {
     addCovidLayer() {
       const country = require("../static/resource/countries.json");
       // console.log(country)
-      this.globalCovidLayer = new L.GeoJSON(country, {
-        pointToLatLng: function (feature, latlng) {
-          return L.marker(latlng, { }) }
-      }).bindPopup(function (layer) {
+      this.globalCovidLayer = new L.GeoJSON(country).bindPopup(function (layer) {
         return layer.feature.properties.COUNTRY;
       }).addTo(this.map);
     },
@@ -144,13 +148,16 @@ export default {
     },
 
     initCharts() {
-      let chartDom = document.getElementById('chart');
+      let chartDom = document.getElementById('chart', null, {renderer: 'svg'});
       this.myChart = echarts.init(chartDom, 'dark');
       var ch = this.myChart;
+      var typeOfData = 'Cases'
 
       var dailyData = [];
-      var timeStamp = 0;
       var chartOption = {
+        title: {
+          text: 'Global Covid-19 ' + typeOfData
+        },
         xAxis: {
           max: 'dataMax',
         },

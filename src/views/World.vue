@@ -178,7 +178,7 @@ export default {
         for (var i = 0; i < countriesName.length; i++) {
           dailyData[i] = worldData.countries['' + countriesName[i] + ''].cases[timeStamp];
         }
-        timeStamp += 1;
+        timeStamp = timeStamp < countriesName.length ? (timeStamp + 1) : countriesName.length;
         ch.setOption(chartOption);
       }
 

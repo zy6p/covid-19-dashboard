@@ -60,7 +60,7 @@ function chartRun(chart, option) {
   timeStamp = timeStamp < countriesName.length ? (timeStamp + 1) : countriesName.length;
   let chartShowTimeSpan = document.getElementById('ChartShowTimeSpan');
   let timeSlider = document.getElementById('timeSlider');
-  console.log(timeSlider.value);
+  // console.log(timeSlider.value);
     // timeSlider.value = worldData.series[timeStamp];
   chartShowTimeSpan.value = '时间轴:' + worldData.series[timeStamp];
   chart.setOption(option);
@@ -139,11 +139,12 @@ export default {
     },
 
     addCovidLayer() {
-      const country = require("../static/resource/countries.json");
-      // console.log(country)
-      this.globalCovidLayer = new L.GeoJSON(country).bindPopup(function (layer) {
-        return layer.feature.properties.COUNTRY;
-      }).addTo(this.map);
+      const country = require("../static/resource/cpoint.json");
+      this.globalCovidLayer = new L.GeoJSON(country);
+      this.globalCovidLayer.bindPopup(function (layer) {
+        return layer.feature.properties.name;
+      });
+      this.globalCovidLayer.addTo(this.map);
     },
 
     addLayerControl() {
@@ -155,10 +156,10 @@ export default {
     },
 
     onEachFeatureOfTopoLayer(feature, layer) {
-      var popupContent = `<strong>Município: </strong>${feature.properties.nome}`;
-      if (feature.properties && feature.properties.popupContent) {
-        popupContent += feature.properties.popupContent;
-      }
+      var popupContent = `<strong>Country: </strong>${feature.properties.NAME}`;
+      // if (feature.properties && feature.properties.popupContent) {
+      //   popupContent += feature.properties.popupContent;
+      // }
       layer.bindPopup(popupContent);
     },
 
@@ -200,7 +201,7 @@ export default {
         },
         animationDuration: 0,
         animationDurationUpdate: 3000,
-        animationEasing: 'linear',
+        animationEasing: "linear",
         animationEasingUpdate: 'linear',
       };
 

@@ -61,7 +61,7 @@ function chartRun(chart, option) {
   let chartShowTimeSpan = document.getElementById('ChartShowTimeSpan');
   let timeSlider = document.getElementById('timeSlider');
   // console.log(timeSlider.value);
-    // timeSlider.value = worldData.series[timeStamp];
+  timeSlider.value = worldData.series[timeStamp];
   chartShowTimeSpan.value = '时间轴:' + worldData.series[timeStamp];
   chart.setOption(option);
 }
@@ -145,6 +145,15 @@ export default {
         return layer.feature.properties.name;
       });
       this.globalCovidLayer.addTo(this.map);
+
+      //country cycle
+      const countryData = require("../static/resource/countries.json");
+      for (var c in countryData) {
+        L.circle([countryData[c].countryInfo.lat, countryData[c].countryInfo.long], {radius: Math.sqrt(countryData[c].cases)*300}).bindPopup(function(layer) {return layer.feature}).addTo(this.map);
+        //L.circle([].concat(country.features[point].geometry.coordinates).reverse(), {radius: worldData.countries['' + country.features[point].properties.name + ''].cases[countriesName.length]}).addTo(this.map);
+        //console.log(worldData.countries['' + country.features[point].properties.name + ''].cases[countriesName.length]);
+        //console.log('' + country.features[point].properties.name + '');
+      }
     },
 
     addLayerControl() {
@@ -219,7 +228,7 @@ export default {
       let timeSlider = document.getElementById('timeSlider');
       timeSlider.addEventListener("input", function (v) {
         timeStamp = v;
-        // timeSlider.value = worldData.series[timeStamp];
+        timeSlider.value = worldData.series[timeStamp];
         chartShowTimeSpan.value = '时间轴:' + worldData.series[timeStamp];
       });
     },

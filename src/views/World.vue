@@ -89,8 +89,8 @@ export default {
     this.initBaseMap();
     this.addTopoJson();
     this.addCovidLayer();
-    this.addLayerControl();
     this.initCharts();
+    this.addLayerControl();
   },
 
   methods: {
@@ -138,22 +138,16 @@ export default {
       this.globalTopoLayer.addTo(this.map);
     },
 
-    addCovidLayer() {
-      const country = require("../static/resource/cpoint.json");
-      this.globalCovidLayer = new L.GeoJSON(country);
-      this.globalCovidLayer.bindPopup(function (layer) {
-        return layer.feature.properties.name;
-      });
-      this.globalCovidLayer.addTo(this.map);
-
+    addCovidLayer: function () {
       //country cycle
       const countryData = require("../static/resource/countries.json");
-      for (var c in countryData) {
-        L.circle([countryData[c].countryInfo.lat, countryData[c].countryInfo.long], {radius: Math.sqrt(countryData[c].cases)*300}).bindPopup(function(layer) {return layer.feature}).addTo(this.map);
-        //L.circle([].concat(country.features[point].geometry.coordinates).reverse(), {radius: worldData.countries['' + country.features[point].properties.name + ''].cases[countriesName.length]}).addTo(this.map);
-        //console.log(worldData.countries['' + country.features[point].properties.name + ''].cases[countriesName.length]);
-        //console.log('' + country.features[point].properties.name + '');
-      }
+      this.globalCovidLayer = L.layerGroup(countryData.map(c=>
+        L.circle([c.countryInfo.lat, c.countryInfo.long],
+            {radius: Math.sqrt(c.cases) * 300}
+            ).bindPopup(
+          c.country + ': ' + c.cases
+        )
+      )).addTo(this.map);
     },
 
     addLayerControl() {

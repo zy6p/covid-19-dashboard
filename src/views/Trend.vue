@@ -2,21 +2,21 @@
   <div class="block">
     <span id="ChartShowTimeSpan" class="demonstration">时间轴: {{ ChartShowTime }}</span>
     <el-slider id="timeSlider" v-model="timeStamp" :max="countriesName.length" :show-tooltip="false" min="0"
-                                                                                                     step="1"></el-slider>
+               step="1"></el-slider>
   </div>
   <div id="sortChart" style="width: 100%;height:800px;"></div>
-  <div id="miniCHarts" style="width: 100%;height:400%;"></div>
+  <div id="miniCHarts" style="width: 100%;height:13000px;"></div>
 </template>
 
 <script>
 import * as echarts from "echarts/core";
 import 'element-plus/lib/theme-chalk/el-slider.css';
-import {TitleComponent, GridComponent, LegendComponent} from 'echarts/components';
+import {GridComponent, ToolboxComponent, TooltipComponent, LegendComponent, TitleComponent} from 'echarts/components';
 import {BarChart, LineChart} from 'echarts/charts';
-import {CanvasRenderer, SVGRenderer} from 'echarts/renderers';
+import {CanvasRenderer} from 'echarts/renderers';
 
 echarts.use(
-  [TitleComponent, GridComponent, LegendComponent, BarChart, LineChart, CanvasRenderer, SVGRenderer]
+    [TitleComponent, ToolboxComponent, TooltipComponent, GridComponent, LegendComponent, BarChart, LineChart, CanvasRenderer]
 );
 const worldData = require("../static/resource/data.json");
 const countriesName = Object.keys(worldData.countries);
@@ -53,7 +53,7 @@ export default {
   },
   methods: {
     initCharts: function () {
-      let chartDom = document.getElementById('sortChart', null, {renderer: 'svg'});
+      let chartDom = document.getElementById('sortChart');
       this.myChart = echarts.init(chartDom, 'dark');
       let tempChart = this.myChart;
 
@@ -114,29 +114,42 @@ export default {
       let titles = [];
       let count = 0;
 
-      let grid_templete = {
-        show: true,
-        borderWidth: 0,
-        shadowColor: 'rgba(0, 0, 0, 0.3)',
-        shadowBlur: 2
-      };
-      let xAxes_templete = function(count) {return {
-        type: 'value',
-        show: false,
-        min: 0,
-        max: 1,
-        gridIndex: count
-      }};
-      let yAxes_templete = function (name, count){
+      function grid_templete(count, item) {
+        return {
+          show: true,
+          borderWidth: 0,
+          shadowColor: 'rgba(0, 0, 0, 0.3)',
+          shadowBlur: 2,
+          left: (33.3 * item + 3.7) + '%',
+          top: (Math.floor(count / 3) * 60 + 5) + 'px',
+          width: '26%',
+          height: '60px'
+        }}
+
+      function xAxes_templete(count) {
         return {
           type: 'value',
           show: false,
           min: 0,
-          max: worldData.countries[name].cases.slice(-1)[0],
+          max: 1,
           gridIndex: count
-        }};
+        }
+      }
+
+      function yAxes_templete(name, count) {
+        return {
+          type: 'value',
+          show: false,
+          min: 0,
+          // max: 0.001 * worldData.countries[name].population,
+          max: 1,
+          gridIndex: count
+        }
+      }
+
       let showItem = ['cases', 'deaths', 'recovered'];
-      let series_templete = function (name, item, data, count) {
+
+      function series_templete(name, item, data, count) {
         return {
           name: name + ' ' + showItem[item],
           type: 'line',
@@ -144,51 +157,51 @@ export default {
           yAxisIndex: count,
           data: data[item],
           showSymbol: false,
+          areaStyle: {},
+          emphasis: {
+            focus: 'series'
+          },
           animationEasing: name + ' ' + showItem[item],
           animationDuration: 1000
-        }};
-      let titles_templete = function (name, item) {
+        }
+      }
+
+      function titles_templete(name, item) {
         return {
           textAlign: 'center',
           text: name + ' ' + showItem[item],
           textStyle: {
             fontSize: 12,
             fontWeight: 'normal'
-          }
-        }};
+          },
+          top: (Math.floor(count / 3) * 60 + 30) + 'px',
+          left: ((33 * item) + 16.5) + '%'
+        }
+      }
+
       const N_POINT = worldData.series.length;
 
-      Object.keys(worldData.countries).forEach(function (country) {
+      // const allCountriesName = Object.keys(worldData.countries).sort();
+      Object.keys(worldData.countries).sort().forEach(function (country) {
         let c_data = [];
-        c_data.push(worldData.countries[country].cases.map(function (v, i) {return [i / N_POINT, v]}));
-        c_data.push(worldData.countries[country].deaths.map(function (v, i) {return [i / N_POINT, v]}));
-        c_data.push(worldData.countries[country].recovered.map(function (v, i) {return [i / N_POINT, v]}));
+        c_data.push(worldData.countries[country].cases.map(function (v, i) {
+          return [i / N_POINT, v / worldData.countries[country].population * 10]
+        }));
+        c_data.push(worldData.countries[country].deaths.map(function (v, i) {
+          return [i / N_POINT, v/ worldData.countries[country].population * 250]
+        }));
+        c_data.push(worldData.countries[country].recovered.map(function (v, i) {
+          return [i / N_POINT, v/ worldData.countries[country].population * 10]
+        }));
 
-        for (let i = 0; i < 3; i ++) {
-          //console.log(grid_templete);
-          //console.log(xAxes_templete(count));
-          //console.log(yAxes_templete(country, count));
-          //console.log(series_templete(country, i, c_data, count));
-          //console.log(titles_templete(country, i));
-          grids.push(grid_templete);
+        for (let i = 0; i < 3; i++) {
+          grids.push(grid_templete(count, i));
           xAxes.push(xAxes_templete(count));
           yAxes.push(yAxes_templete(country, count));
           series.push(series_templete(country, i, c_data, count));
           titles.push(titles_templete(country, i));
           count++;
         }
-
-      });
-      const colNumber = 3;
-      const rowNumber = 214;
-      grids.forEach(function (grid, idx) {
-        grid.left = ((idx % colNumber) / colNumber * 100 + 0.5) + '%';
-        grid.top = (Math.floor(idx / colNumber) / rowNumber * 400 + 0.5) + '%';
-        grid.width = (1 / colNumber * 100 - 1) + '%';
-        grid.height = (1 / rowNumber * 400 - 1) + '%';
-
-        titles[idx].left = parseFloat(grid.left) + parseFloat(grid.width) / 2 + '%';
-        titles[idx].top = parseFloat(grid.top) + '%';
       });
 
       let option = {
@@ -200,9 +213,24 @@ export default {
         grid: grids,
         xAxis: xAxes,
         yAxis: yAxes,
-        series: series
+        series: series,
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: {
+            type: 'cross',
+            label: {
+              backgroundColor: '#6a7985'
+            }
+          }
+        },
+        toolbox: {
+          feature: {
+            saveAsImage: {}
+          }
+        }
       };
 
+      console.log(option)
       option && miniCharts.setOption(option);
     },
 

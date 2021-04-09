@@ -2,10 +2,10 @@
   <div class="block">
     <span id="ChartShowTimeSpan" class="demonstration">时间轴: {{ ChartShowTime }}</span>
     <el-slider id="timeSlider" v-model="timeStamp" :max="countriesName.length" :show-tooltip="false" min="0"
-               step="1"></el-slider>
+                                                                                                     step="1"></el-slider>
   </div>
   <div id="sortChart" style="width: 100%;height:800px;"></div>
-  <div id="miniCHarts" style="width: 100%;height:800px;"></div>
+  <div id="miniCHarts" style="width: 100%;height:400%;"></div>
 </template>
 
 <script>
@@ -16,7 +16,7 @@ import {BarChart, LineChart} from 'echarts/charts';
 import {CanvasRenderer, SVGRenderer} from 'echarts/renderers';
 
 echarts.use(
-    [TitleComponent, GridComponent, LegendComponent, BarChart, LineChart, CanvasRenderer, SVGRenderer]
+  [TitleComponent, GridComponent, LegendComponent, BarChart, LineChart, CanvasRenderer, SVGRenderer]
 );
 const worldData = require("../static/resource/data.json");
 const countriesName = Object.keys(worldData.countries);
@@ -113,56 +113,79 @@ export default {
       let series = [];
       let titles = [];
       let count = 0;
-      const N_POINT = countriesName.length;
 
-      Object.keys(worldData.countries).forEach(function (country) {
-        let data = worldData.countries[country].cases.map(function (v, i) {return [i / N_POINT, v]});
-        grids.push({
-          show: true,
-          borderWidth: 0,
-          shadowColor: 'rgba(0, 0, 0, 0.3)',
-          shadowBlur: 2
-        });
-        xAxes.push({
+      let grid_templete = {
+        show: true,
+        borderWidth: 0,
+        shadowColor: 'rgba(0, 0, 0, 0.3)',
+        shadowBlur: 2
+      };
+      let xAxes_templete = function(count) {return {
+        type: 'value',
+        show: false,
+        min: 0,
+        max: 1,
+        gridIndex: count
+      }};
+      let yAxes_templete = function (name, count){
+        return {
           type: 'value',
           show: false,
           min: 0,
-          max: 1,
+          max: worldData.countries[name].cases.slice(-1)[0],
           gridIndex: count
-        });
-        yAxes.push({
-          type: 'value',
-          show: false,
-          min: -0.4,
-          max: 1.4,
-          gridIndex: count
-        });
-        series.push({
-          name: country,
+        }};
+      let showItem = ['cases', 'deaths', 'recovered'];
+      let series_templete = function (name, item, data, count) {
+        return {
+          name: name + ' ' + showItem[item],
           type: 'line',
           xAxisIndex: count,
           yAxisIndex: count,
-          data: data,
+          data: data[item],
           showSymbol: false,
-          animationEasing: country,
+          animationEasing: name + ' ' + showItem[item],
           animationDuration: 1000
-        });
-        titles.push({
+        }};
+      let titles_templete = function (name, item) {
+        return {
           textAlign: 'center',
-          text: country,
+          text: name + ' ' + showItem[item],
           textStyle: {
             fontSize: 12,
             fontWeight: 'normal'
           }
-        });
-        count++;
+        }};
+      const N_POINT = worldData.series.length;
+
+      Object.keys(worldData.countries).forEach(function (country) {
+        let c_data = [];
+        c_data.push(worldData.countries[country].cases.map(function (v, i) {return [i / N_POINT, v]}));
+        c_data.push(worldData.countries[country].deaths.map(function (v, i) {return [i / N_POINT, v]}));
+        c_data.push(worldData.countries[country].recovered.map(function (v, i) {return [i / N_POINT, v]}));
+
+        for (let i = 0; i < 3; i ++) {
+          //console.log(grid_templete);
+          //console.log(xAxes_templete(count));
+          //console.log(yAxes_templete(country, count));
+          //console.log(series_templete(country, i, c_data, count));
+          //console.log(titles_templete(country, i));
+          grids.push(grid_templete);
+          xAxes.push(xAxes_templete(count));
+          yAxes.push(yAxes_templete(country, count));
+          series.push(series_templete(country, i, c_data, count));
+          titles.push(titles_templete(country, i));
+          count++;
+        }
+
       });
-      let rowNumber = Math.ceil(Math.sqrt(count));
+      const colNumber = 3;
+      const rowNumber = 214;
       grids.forEach(function (grid, idx) {
-        grid.left = ((idx % rowNumber) / rowNumber * 100 + 0.5) + '%';
-        grid.top = (Math.floor(idx / rowNumber) / rowNumber * 100 + 0.5) + '%';
-        grid.width = (1 / rowNumber * 100 - 1) + '%';
-        grid.height = (1 / rowNumber * 100 - 1) + '%';
+        grid.left = ((idx % colNumber) / colNumber * 100 + 0.5) + '%';
+        grid.top = (Math.floor(idx / colNumber) / rowNumber * 400 + 0.5) + '%';
+        grid.width = (1 / colNumber * 100 - 1) + '%';
+        grid.height = (1 / rowNumber * 400 - 1) + '%';
 
         titles[idx].left = parseFloat(grid.left) + parseFloat(grid.width) / 2 + '%';
         titles[idx].top = parseFloat(grid.top) + '%';
@@ -170,7 +193,7 @@ export default {
 
       let option = {
         title: titles.concat([{
-          text: 'Different Easing Functions',
+          text: 'Global Cases MiniCharts',
           top: 'bottom',
           left: 'center'
         }]),

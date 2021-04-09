@@ -18,7 +18,7 @@ import {CanvasRenderer} from 'echarts/renderers';
 echarts.use(
     [TitleComponent, ToolboxComponent, TooltipComponent, GridComponent, LegendComponent, BarChart, LineChart, CanvasRenderer]
 );
-const worldData = require("../static/resource/data.json");
+let worldData = require("../static/resource/data.json");
 const countriesName = Object.keys(worldData.countries);
 
 let timeStamp = 0;
@@ -230,7 +230,6 @@ export default {
         }
       };
 
-      console.log(option)
       option && miniCharts.setOption(option);
     },
 

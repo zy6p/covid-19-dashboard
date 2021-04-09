@@ -6,7 +6,8 @@
 </template>
 
 <script>
-import AppHeaderCard from "../components/AppHeaderCard";
+import AppHeaderCard from "@/components/AppHeaderCard";
+// import axios from "axios";
 import L from "leaflet";
 import * as topojson from "topojson-client";
 import 'leaflet.chinatmsproviders'
@@ -34,7 +35,6 @@ L.TopoJSON = L.GeoJSON.extend({
 });
 
 const glanceData = require("../static/resource/all.json");
-
 export default {
   name: "World",
   data() {
@@ -92,7 +92,7 @@ export default {
         zoom: 2,
         layers: [OpenStreetMap],
       })
-      // L.control.scale({ maxWidth: 200, metric: true, imperial: false }).addTo(this.map)
+      L.control.scale({ maxWidth: 200, metric: true, imperial: false }).addTo(this.map)
     },
 
     addTopoJson() {
@@ -105,6 +105,9 @@ export default {
     addCovidLayer: function () {
       //country cycle
       const countryData = require("../static/resource/countries.json");
+      // // let countryData = {};
+      // axios.get("https://geo.hotdry.top:18100/covid-19/data/countries.json").then(response => {
+        // countryData = response.data
       this.globalCovidLayer = L.layerGroup(countryData.map(c =>
           L.circle([c.countryInfo.lat, c.countryInfo.long],
               {radius: Math.sqrt(c.cases) * 300}
@@ -127,9 +130,6 @@ export default {
 
     onEachFeatureOfTopoLayer(feature, layer) {
       let popupContent = `<strong>Country: </strong>${feature.properties.NAME}`;
-      // if (feature.properties && feature.properties.popupContent) {
-      //   popupContent += feature.properties.popupContent;
-      // }
       layer.bindPopup(popupContent);
     },
 

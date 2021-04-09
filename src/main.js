@@ -8,6 +8,11 @@ import App from './App.vue'
 
 import 'leaflet/dist/leaflet.css'
 
+import Axios from 'axios'
+
+Axios.defaults.baseURL = '/covid-19/data'
+Axios.defaults.headers.get['Content-Type'] = 'application/json'
+
 import router from "./router";
 
 const app = createApp(App);

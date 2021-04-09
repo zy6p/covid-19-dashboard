@@ -116,9 +116,71 @@ export default {
       const N_POINT = countriesName.length;
 
       Object.keys(worldData.countries).forEach(function (country) {
-        let data = country.cases.map(function (v, i) {return [i, v]});
+        let data = worldData.countries[country].cases.map(function (v, i) {return [i / N_POINT, v]});
+        grids.push({
+          show: true,
+          borderWidth: 0,
+          shadowColor: 'rgba(0, 0, 0, 0.3)',
+          shadowBlur: 2
+        });
+        xAxes.push({
+          type: 'value',
+          show: false,
+          min: 0,
+          max: 1,
+          gridIndex: count
+        });
+        yAxes.push({
+          type: 'value',
+          show: false,
+          min: -0.4,
+          max: 1.4,
+          gridIndex: count
+        });
+        series.push({
+          name: country,
+          type: 'line',
+          xAxisIndex: count,
+          yAxisIndex: count,
+          data: data,
+          showSymbol: false,
+          animationEasing: country,
+          animationDuration: 1000
+        });
+        titles.push({
+          textAlign: 'center',
+          text: country,
+          textStyle: {
+            fontSize: 12,
+            fontWeight: 'normal'
+          }
+        });
+        count++;
+      });
+      let rowNumber = Math.ceil(Math.sqrt(count));
+      grids.forEach(function (grid, idx) {
+        grid.left = ((idx % rowNumber) / rowNumber * 100 + 0.5) + '%';
+        grid.top = (Math.floor(idx / rowNumber) / rowNumber * 100 + 0.5) + '%';
+        grid.width = (1 / rowNumber * 100 - 1) + '%';
+        grid.height = (1 / rowNumber * 100 - 1) + '%';
 
-      })
+        titles[idx].left = parseFloat(grid.left) + parseFloat(grid.width) / 2 + '%';
+        titles[idx].top = parseFloat(grid.top) + '%';
+      });
+
+      let option = {
+        title: titles.concat([{
+          text: 'Different Easing Functions',
+          top: 'bottom',
+          left: 'center'
+        }]),
+        grid: grids,
+        xAxis: xAxes,
+        yAxis: yAxes,
+        series: series
+      };
+
+      option && miniCharts.setOption(option);
     },
 
     addTimeSlider() {

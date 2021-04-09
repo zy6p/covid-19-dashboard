@@ -1,24 +1,26 @@
 <template>
   <el-menu
       :default-active="activeIndex"
+      active-text-color="#ffd04b"
+      background-color="#545c64"
       class="el-menu-demo"
       mode="horizontal"
-      @select="handleSelect"
-      background-color="#545c64"
       text-color="#fff"
-      active-text-color="#ffd04b">
+      router="true"
+      @select="handleSelect">
     <el-menu-item index="/home" route="true">
-      <el-image src="https://static.hotdry.top/logo3.png" >hotdry</el-image>
+      <el-image src="https://static.hotdry.top/logo3.png" alt="hotdry"></el-image>
     </el-menu-item>
-    <el-menu-item index="/" route="true">全球疫情</el-menu-item>
-    <el-menu-item index="/vaccine" route="true">疫苗接种</el-menu-item>
-    <el-menu-item index="/usa" route="true">美国疫情</el-menu-item>
+    <el-menu-item index="/" >今日疫情</el-menu-item>
+    <el-menu-item index="/trend" >疫情走势</el-menu-item>
+    <el-menu-item index="/vaccine" >疫苗接种</el-menu-item>
   </el-menu>
 </template>
 
 <script>
 import 'element-plus/lib/theme-chalk/el-image.css';
 import 'element-plus/lib/theme-chalk/el-menu.css';
+
 export default {
   name: "AppHeader",
   data() {
@@ -28,7 +30,7 @@ export default {
   },
   methods: {
     handleSelect(key, keyPath) {
-      console.log(key, keyPath);
+      this.activeIndex = keyPath;
     }
   },
 }

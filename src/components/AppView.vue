@@ -7,6 +7,7 @@
 
 <script>
 import Header from "./AppHeader";
+
 export default {
   name: "AppView",
   components: {

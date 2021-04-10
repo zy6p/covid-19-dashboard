@@ -39,7 +39,7 @@ L.TopoJSON = L.GeoJSON.extend({
 
 const glanceData = require("../static/resource/all.json");
 export default {
-  name: "World",
+  name: "ViewWorld",
   data() {
     return {
       map: null,
@@ -112,7 +112,7 @@ export default {
       // this.globalTopoLayer.addTo(this.map);
     },
 
-    addCovidLayer: function () {
+    addCovidLayer() {
       //country cycle
       const countryData = require("../static/resource/countries.json");
       // // let countryData = {};

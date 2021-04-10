@@ -47,7 +47,7 @@ function chartRun(chart, option) {
 }
 
 export default {
-  name: "Trend",
+  name: "ViewTrend",
   data() {
     return {
       myChart: null,

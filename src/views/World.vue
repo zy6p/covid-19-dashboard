@@ -1,7 +1,10 @@
 <template>
-  <AppHeaderCard :title="'确诊： ' + glanceData.cases" type="warning"></AppHeaderCard>
-  <AppHeaderCard :title="'康复： ' + glanceData.recovered" type="success"></AppHeaderCard>
-  <AppHeaderCard :title="'死亡： ' + glanceData.deaths" type="info"></AppHeaderCard>
+  <AppHeaderCard :title="'确诊： ' + glanceData.cases"
+                 type="warning"></AppHeaderCard>
+  <AppHeaderCard :title="'康复： ' + glanceData.recovered"
+                 type="success"></AppHeaderCard>
+  <AppHeaderCard :title="'死亡： ' + glanceData.deaths"
+                 type="info"></AppHeaderCard>
   <div id="map"></div>
 </template>
 
@@ -92,12 +95,19 @@ export default {
         zoom: 2,
         layers: [OpenStreetMap],
       })
-      L.control.scale({ maxWidth: 200, metric: true, imperial: false }).addTo(this.map)
+      L.control.scale({
+        maxWidth: 200,
+        metric: true,
+        imperial: false
+      }).addTo(this.map)
     },
 
     addTopoJson() {
       const topo = require("../static/resource/topo.json");
-      this.globalTopoLayer = new L.TopoJSON(null, {style: this.myStyle, onEachFeature: this.onEachFeatureOfTopoLayer});
+      this.globalTopoLayer = new L.TopoJSON(null, {
+        style: this.myStyle,
+        onEachFeature: this.onEachFeatureOfTopoLayer
+      });
       this.globalTopoLayer.addData(topo);
       // this.globalTopoLayer.addTo(this.map);
     },
@@ -107,7 +117,7 @@ export default {
       const countryData = require("../static/resource/countries.json");
       // // let countryData = {};
       // axios.get("https://geo.hotdry.top:18100/covid-19/data/countries.json").then(response => {
-        // countryData = response.data
+      // countryData = response.data
       this.globalCovidLayer = L.layerGroup(countryData.map(c =>
           L.circle([c.countryInfo.lat, c.countryInfo.long],
               {radius: Math.sqrt(c.cases) * 300}
@@ -132,7 +142,6 @@ export default {
       let popupContent = `<strong>Country: </strong>${feature.properties.NAME}`;
       layer.bindPopup(popupContent);
     },
-
 
 
   }

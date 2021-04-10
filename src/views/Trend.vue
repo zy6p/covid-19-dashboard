@@ -1,7 +1,10 @@
 <template>
   <div class="block">
-    <span id="ChartShowTimeSpan" class="demonstration">时间轴: {{ ChartShowTime }}</span>
-    <el-slider id="timeSlider" v-model="timeStamp" :max="countriesName.length" :show-tooltip="false" min="0"
+    <span id="ChartShowTimeSpan" class="demonstration">时间轴: {{
+        ChartShowTime
+      }}</span>
+    <el-slider id="timeSlider" v-model="timeStamp" :max="countriesName.length"
+               :show-tooltip="false" min="0"
                step="1"></el-slider>
   </div>
   <div id="sortChart" style="width: 100%;height:800px;"></div>
@@ -11,7 +14,13 @@
 <script>
 import * as echarts from "echarts/core";
 import 'element-plus/lib/theme-chalk/el-slider.css';
-import {GridComponent, ToolboxComponent, TooltipComponent, LegendComponent, TitleComponent} from 'echarts/components';
+import {
+  GridComponent,
+  LegendComponent,
+  TitleComponent,
+  ToolboxComponent,
+  TooltipComponent
+} from 'echarts/components';
 import {BarChart, LineChart} from 'echarts/charts';
 import {CanvasRenderer} from 'echarts/renderers';
 
@@ -114,7 +123,7 @@ export default {
       let titles = [];
       let count = 0;
 
-      function grid_templete(count, item) {
+      function grid_template(count, item) {
         return {
           show: true,
           borderWidth: 0,
@@ -124,9 +133,10 @@ export default {
           top: (Math.floor(count / 3) * 60 + 5) + 'px',
           width: '26%',
           height: '60px'
-        }}
+        }
+      }
 
-      function xAxes_templete(count) {
+      function xAxes_template(count) {
         return {
           type: 'value',
           show: false,
@@ -136,7 +146,7 @@ export default {
         }
       }
 
-      function yAxes_templete(name, count) {
+      function yAxes_template(name, count) {
         return {
           type: 'value',
           show: false,
@@ -149,7 +159,7 @@ export default {
 
       let showItem = ['cases', 'deaths', 'recovered'];
 
-      function series_templete(name, item, data, count) {
+      function series_template(name, item, data, count) {
         return {
           name: name + ' ' + showItem[item],
           type: 'line',
@@ -166,7 +176,7 @@ export default {
         }
       }
 
-      function titles_templete(name, item) {
+      function titles_template(name, item) {
         return {
           textAlign: 'center',
           text: name + ' ' + showItem[item],
@@ -188,18 +198,18 @@ export default {
           return [i / N_POINT, v / worldData.countries[country].population * 10]
         }));
         c_data.push(worldData.countries[country].deaths.map(function (v, i) {
-          return [i / N_POINT, v/ worldData.countries[country].population * 250]
+          return [i / N_POINT, v / worldData.countries[country].population * 250]
         }));
         c_data.push(worldData.countries[country].recovered.map(function (v, i) {
-          return [i / N_POINT, v/ worldData.countries[country].population * 10]
+          return [i / N_POINT, v / worldData.countries[country].population * 10]
         }));
 
         for (let i = 0; i < 3; i++) {
-          grids.push(grid_templete(count, i));
-          xAxes.push(xAxes_templete(count));
-          yAxes.push(yAxes_templete(country, count));
-          series.push(series_templete(country, i, c_data, count));
-          titles.push(titles_templete(country, i));
+          grids.push(grid_template(count, i));
+          xAxes.push(xAxes_template(count));
+          yAxes.push(yAxes_template(country, count));
+          series.push(series_template(country, i, c_data, count));
+          titles.push(titles_template(country, i));
           count++;
         }
       });

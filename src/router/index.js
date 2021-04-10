@@ -1,6 +1,7 @@
-import { createRouter, createWebHashHistory } from 'vue-router'
+import {createRouter, createWebHashHistory} from 'vue-router'
 
 import AppView from "@/components/AppView";
+
 const views = name => () => import('@/views/' + name);
 const router = createRouter({
     history: createWebHashHistory(),

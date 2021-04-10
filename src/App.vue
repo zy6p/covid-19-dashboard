@@ -14,6 +14,7 @@ html, body {
   /*overflow-x: hidden;*/
   /*overflow-y: scroll;*/
 }
+
 #app {
   height: 100%;
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
@@ -21,13 +22,14 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
 }
-.router-view{
+
+.router-view {
   width: 100%;
   height: auto;
   position: absolute;
   top: 0;
   bottom: 0;
-  margin: 0 ;
+  margin: 0;
   -webkit-overflow-scrolling: touch;
 }
 </style>

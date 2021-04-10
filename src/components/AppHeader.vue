@@ -5,15 +5,16 @@
       background-color="#545c64"
       class="el-menu-demo"
       mode="horizontal"
-      text-color="#fff"
       router="true"
+      text-color="#fff"
       @select="handleSelect">
     <el-menu-item index="/home" route="true">
-      <el-image src="https://static.hotdry.top/logo3.png" alt="hotdry"></el-image>
+      <el-image alt="hotdry"
+                src="https://static.hotdry.top/logo3.png"></el-image>
     </el-menu-item>
-    <el-menu-item index="/" >今日疫情</el-menu-item>
-    <el-menu-item index="/trend" >疫情走势</el-menu-item>
-    <el-menu-item index="/vaccine" >疫苗接种</el-menu-item>
+    <el-menu-item index="/">今日疫情</el-menu-item>
+    <el-menu-item index="/trend">疫情走势</el-menu-item>
+    <el-menu-item index="/vaccine">疫苗接种</el-menu-item>
   </el-menu>
 </template>
 

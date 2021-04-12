@@ -11,8 +11,7 @@ const router = createRouter({
             component: AppView,
             children: [
                 {path: '/', name: 'world', component: views('ViewWorld')},
-                {path: '/trend', name: 'trend', component: views('ViewTrend')},
-                {path: '/vaccine', name: 'trend', component: views('ViewVaccine')},
+                {path: '/trend', name: 'trend', component: views('ViewTrend')}
             ]
         },
     ]

@@ -14,7 +14,7 @@
     </el-menu-item>
     <el-menu-item index="/">今日疫情</el-menu-item>
     <el-menu-item index="/trend">疫情走势</el-menu-item>
-    <el-menu-item index="/vaccine">疫苗接种</el-menu-item>
+    <el-menu-item index="/about">关于本站</el-menu-item>
   </el-menu>
 </template>
 

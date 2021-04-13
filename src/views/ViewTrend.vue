@@ -5,8 +5,8 @@
       }}</span>
     <el-slider id="timeSlider" v-model=timeStamp2 :max=worldData.series.length-1
                :show-tooltip="false"
-               @change="changeTimeSlider"
-               :step="1"></el-slider>
+               :step="1"
+               @change="changeTimeSlider"></el-slider>
   </div>
   <div id="sortChart" style="width: 100%;height:800px;"></div>
   <div id="miniCHarts" style="width: 100%;height:13000px;"></div>
@@ -29,11 +29,9 @@ echarts.use(
     [TitleComponent, ToolboxComponent, TooltipComponent, GridComponent, LegendComponent, BarChart, LineChart, CanvasRenderer]
 );
 let worldData = require("../static/resource/data.json");
-console.log(worldData.series.length)
 const countriesName = Object.keys(worldData.countries);
 
 let timeStamp = 0;
-// let ChartShowTime = worldData.series[timeStamp];
 let dailyData = [];
 
 export default {
@@ -239,28 +237,16 @@ export default {
       for (let i = 0; i < countriesName.length; i++) {
         dailyData[i] = worldData.countries[countriesName[i]].cases[timeStamp];
       }
-      console.log(dailyData, timeStamp);
       timeStamp = timeStamp < worldData.series.length ? (timeStamp + 1) : 0;
       this.timeStamp2 = timeStamp;
       this.ChartShowTime = worldData.series[timeStamp];
-      // console.log(timeStamp)
-      // this.ChartShowTime = worldData.series[timeStamp];
       chart.setOption(option);
     },
 
     changeTimeSlider(event) {
-      // delete chartRun();
-      console.log("iam event", event)
       timeStamp = event;
-      // console.log(timeStamp)
-      // timeStamp = 100
       this.ChartShowTime = worldData.series[timeStamp];
       console.log(this.ChartShowTime)
-      // let chartShowTimeSpan = document.getElementById('ChartShowTimeSpan');
-      // let timeSlider = document.getElementById('timeSlider');
-      // // console.log(timeSlider.value);
-      // timeSlider.value = worldData.series[timeStamp];
-      // chartShowTimeSpan.value = '时间轴:' + worldData.series[timeStamp];
     },
   }
 }

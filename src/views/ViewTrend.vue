@@ -3,9 +3,10 @@
     <span id="ChartShowTimeSpan" class="demonstration">时间轴: {{
         ChartShowTime
       }}</span>
-    <el-slider id="timeSlider" v-model="timeStamp" :max="countriesName.length"
-               :show-tooltip="false" min="0"
-               step="1"></el-slider>
+    <el-slider id="timeSlider" v-model=timeStamp2 :max=worldData.series.length-1
+               :show-tooltip="false"
+               @change="changeTimeSlider"
+               :step="1"></el-slider>
   </div>
   <div id="sortChart" style="width: 100%;height:800px;"></div>
   <div id="miniCHarts" style="width: 100%;height:13000px;"></div>
@@ -28,32 +29,22 @@ echarts.use(
     [TitleComponent, ToolboxComponent, TooltipComponent, GridComponent, LegendComponent, BarChart, LineChart, CanvasRenderer]
 );
 let worldData = require("../static/resource/data.json");
+console.log(worldData.series.length)
 const countriesName = Object.keys(worldData.countries);
 
 let timeStamp = 0;
+// let ChartShowTime = worldData.series[timeStamp];
 let dailyData = [];
-
-function chartRun(chart, option) {
-  for (let i = 0; i < countriesName.length; i++) {
-    dailyData[i] = worldData.countries['' + countriesName[i] + ''].cases[timeStamp];
-  }
-  timeStamp = timeStamp < countriesName.length ? (timeStamp + 1) : countriesName.length;
-  let chartShowTimeSpan = document.getElementById('ChartShowTimeSpan');
-  let timeSlider = document.getElementById('timeSlider');
-  // console.log(timeSlider.value);
-  timeSlider.value = worldData.series[timeStamp];
-  chartShowTimeSpan.value = '时间轴:' + worldData.series[timeStamp];
-  chart.setOption(option);
-}
 
 export default {
   name: "ViewTrend",
   data() {
     return {
       myChart: null,
-      timeStamp,
+      worldData,
+      timeStamp2: timeStamp,
       ChartShowTime: worldData.series[timeStamp],
-      countriesName,
+      countriesName: '',
     }
   },
   mounted() {
@@ -98,18 +89,19 @@ export default {
           show: true
         },
         animationDuration: 0,
-        animationDurationUpdate: 3000,
+        animationDurationUpdate: 500,
         animationEasing: "linear",
         animationEasingUpdate: 'linear',
       };
+      let that = this;
 
       setTimeout(function () {
-        chartRun(tempChart, chartOption);
+        that.chartRun(tempChart, chartOption);
       }, 0);
 
       setInterval(function () {
-        chartRun(tempChart, chartOption);
-      }, 3000);
+        that.chartRun(tempChart, chartOption);
+      }, 500);
     },
 
     initMiniCharts() {
@@ -243,14 +235,32 @@ export default {
       option && miniCharts.setOption(option);
     },
 
-    addTimeSlider() {
-      let chartShowTimeSpan = document.getElementById('ChartShowTimeSpan');
-      let timeSlider = document.getElementById('timeSlider');
-      timeSlider.addEventListener("input", function (v) {
-        timeStamp = v;
-        timeSlider.value = worldData.series[timeStamp];
-        chartShowTimeSpan.value = '时间轴:' + worldData.series[timeStamp];
-      });
+    chartRun(chart, option) {
+      for (let i = 0; i < countriesName.length; i++) {
+        dailyData[i] = worldData.countries[countriesName[i]].cases[timeStamp];
+      }
+      console.log(dailyData, timeStamp);
+      timeStamp = timeStamp < worldData.series.length ? (timeStamp + 1) : 0;
+      this.timeStamp2 = timeStamp;
+      this.ChartShowTime = worldData.series[timeStamp];
+      // console.log(timeStamp)
+      // this.ChartShowTime = worldData.series[timeStamp];
+      chart.setOption(option);
+    },
+
+    changeTimeSlider(event) {
+      // delete chartRun();
+      console.log("iam event", event)
+      timeStamp = event;
+      // console.log(timeStamp)
+      // timeStamp = 100
+      this.ChartShowTime = worldData.series[timeStamp];
+      console.log(this.ChartShowTime)
+      // let chartShowTimeSpan = document.getElementById('ChartShowTimeSpan');
+      // let timeSlider = document.getElementById('timeSlider');
+      // // console.log(timeSlider.value);
+      // timeSlider.value = worldData.series[timeStamp];
+      // chartShowTimeSpan.value = '时间轴:' + worldData.series[timeStamp];
     },
   }
 }

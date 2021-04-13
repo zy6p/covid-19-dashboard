@@ -8,7 +8,7 @@
       router="true"
       text-color="#fff"
       @select="handleSelect">
-    <el-menu-item index="/home" route="true">
+    <el-menu-item index="/home">
       <el-image alt="hotdry"
                 src="https://static.hotdry.top/logo3.png"></el-image>
     </el-menu-item>

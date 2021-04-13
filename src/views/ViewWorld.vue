@@ -79,19 +79,19 @@ export default {
       let Gaodimage = L.layerGroup([Gaodimgem, Gaodimga]);
       // 图层
       let OpenStreetMap = L.tileLayer(
-        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        {
-          attribution: "© OpenStreetMap",
-        }
+          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+          {
+            attribution: "© OpenStreetMap",
+          }
       );
       let MapBoxStreet = L.tileLayer(
-        "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw",
-        {
-          maxZoom: 18,
-          id: "mapbox/streets-v11",
-          tileSize: 512,
-          zoomOffset: -1,
-        }
+          "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw",
+          {
+            maxZoom: 18,
+            id: "mapbox/streets-v11",
+            tileSize: 512,
+            zoomOffset: -1,
+          }
       );
       this.baseLayers = {
         OpenStreetMap: OpenStreetMap,
@@ -105,12 +105,12 @@ export default {
         layers: [OpenStreetMap],
       });
       L.control
-        .scale({
-          maxWidth: 200,
-          metric: true,
-          imperial: false,
-        })
-        .addTo(this.map);
+          .scale({
+            maxWidth: 200,
+            metric: true,
+            imperial: false,
+          })
+          .addTo(this.map);
     },
 
     async addVaccineLayer() {
@@ -145,7 +145,9 @@ export default {
 
     getColor(name) {
       let index = this.countryName.findIndex(v => v === name);
-      if (index < 0) {return "#FFF"}
+      if (index < 0) {
+        return "#FFF"
+      }
       let d = Object.values(this.vaccineData[index].timeline) /
           countryData[index].population;
       // if (Object.prototype.hasOwnProperty.call(name, "NAME")) {
@@ -174,33 +176,33 @@ export default {
       // axios.get("https://geo.hotdry.top:18100/covid-19/data/countries.json").then(response => {
       // countryData = response.data
       this.globalCovidLayer = L.layerGroup(
-        countryData.map((c) =>
-          L.circle([c.countryInfo.lat, c.countryInfo.long], {
-            radius: Math.sqrt(c.cases) * 300,
-          }).bindPopup(
-            '<img style="height: 50px;" src=' +
-              c.countryInfo.flag +
-              " alt=" +
-              c.countryInfo.iso2 +
-              "><div><strong>" +
-              c.country +
-              "</strong></div><li>累计确诊: " +
-              c.cases +
-              "</li><li>今日确诊: " +
-              c.todayCases +
-              "</li><li>累计死亡: " +
-              c.deaths +
-              "</li><li>今日死亡: " +
-              c.todayDeaths +
-              "</li><li>累计康复: " +
-              c.recovered +
-              "</li> <li>今日康复: " +
-              c.todayRecovered +
-              "</li><li>现存患者: " +
-              c.active +
-              "</li>"
+          countryData.map((c) =>
+              L.circle([c.countryInfo.lat, c.countryInfo.long], {
+                radius: Math.sqrt(c.cases) * 300,
+              }).bindPopup(
+                  '<img style="height: 50px;" src=' +
+                  c.countryInfo.flag +
+                  " alt=" +
+                  c.countryInfo.iso2 +
+                  "><div><strong>" +
+                  c.country +
+                  "</strong></div><li>累计确诊: " +
+                  c.cases +
+                  "</li><li>今日确诊: " +
+                  c.todayCases +
+                  "</li><li>累计死亡: " +
+                  c.deaths +
+                  "</li><li>今日死亡: " +
+                  c.todayDeaths +
+                  "</li><li>累计康复: " +
+                  c.recovered +
+                  "</li> <li>今日康复: " +
+                  c.todayRecovered +
+                  "</li><li>现存患者: " +
+                  c.active +
+                  "</li>"
+              )
           )
-        )
       ).addTo(this.map);
     },
 
@@ -242,7 +244,7 @@ export default {
       this.map.fitBounds(e.target.getBounds());
     },
   },
-};
+}
 </script>
 
 <style scoped>

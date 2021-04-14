@@ -114,7 +114,7 @@ export default {
     },
 
     async addVaccineLayer() {
-      const worldBaseShp = (await this.axios.get("https://geo.hotdry.top:18105/geoserver/covid-19/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=covid-19%3AWorld_Countries__Generalized_&maxFeatures=50&outputFormat=application%2Fjson")).data;
+      const worldBaseShp = (await this.axios.get("https://geo.hotdry.top:18105/geoserver/covid-19/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=covid-19%3AWorld_Countries__Generalized_&outputFormat=application%2Fjson")).data;
       console.log(worldBaseShp);
       this.vaccineData = (await this.axios.get("https://geo.hotdry.top:18100/covid-19-dashboard/data/vaccine.json")).data;
       this.countryName = this.vaccineData.map((v) => v.country);

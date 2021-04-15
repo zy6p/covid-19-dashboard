@@ -1,7 +1,7 @@
 # covid-19-dashboard
 
 **GIS design and practice** project.     
-GIS设计与实践大作业 - 疫情地图，作者：王知远
+GIS设计与实践大作业 - 疫情地图
 
 ## Roadmap
 

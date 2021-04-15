@@ -1,15 +1,15 @@
 <template>
   <AppHeaderCard
-    :title="'确诊： ' + glanceData.cases"
-    type="warning"
+      :title="'确诊： ' + glanceData.cases"
+      type="warning"
   ></AppHeaderCard>
   <AppHeaderCard
-    :title="'康复： ' + glanceData.recovered"
-    type="success"
+      :title="'康复： ' + glanceData.recovered"
+      type="success"
   ></AppHeaderCard>
   <AppHeaderCard
-    :title="'死亡： ' + glanceData.deaths"
-    type="info"
+      :title="'死亡： ' + glanceData.deaths"
+      type="info"
   ></AppHeaderCard>
   <div id="map"></div>
 </template>
@@ -18,30 +18,11 @@
 import AppHeaderCard from "@/components/AppHeaderCard";
 // import axios from "axios";
 import L from "leaflet";
-import * as topojson from "topojson-client";
+import "@/m/fixleaflet";
 import "leaflet.chinatmsproviders";
 
-const countryData = require("../static/resource/countries.json");
-// Leaflet bugs
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
-  iconUrl: require("leaflet/dist/images/marker-icon.png"),
-  shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
-});
-
-L.TopoJSON = L.GeoJSON.extend({
-  addData: function (jsonData) {
-    if (jsonData.type === "Topology") {
-      for (let key in jsonData.objects) {
-        let geojson = topojson.feature(jsonData, jsonData.objects[key]);
-        L.GeoJSON.prototype.addData.call(this, geojson);
-      }
-    } else {
-      L.GeoJSON.prototype.addData.call(this, jsonData);
-    }
-  },
-});
+const chroma = require('chroma-js')
+const color_scale = chroma.scale('Spectral');
 
 const glanceData = require("../static/resource/all.json");
 export default {
@@ -61,8 +42,9 @@ export default {
   },
   mounted() {
     this.initBaseMap();
-    this.addVaccineLayer();
+    this.addLayerControl();
     this.addCovidLayer();
+    this.addVaccineLayer();
   },
 
   methods: {
@@ -89,14 +71,15 @@ export default {
           {
             maxZoom: 18,
             id: "mapbox/streets-v11",
+            attribution: "© MapBox",
             tileSize: 512,
             zoomOffset: -1,
           }
       );
       this.baseLayers = {
         OpenStreetMap: OpenStreetMap,
-        高德地图: Gaode,
-        高德影像: Gaodimage,
+        "高德地图": Gaode,
+        "高德影像": Gaodimage,
         Mapbox: MapBoxStreet,
       };
       this.map = L.map("map", {
@@ -114,27 +97,46 @@ export default {
     },
 
     async addVaccineLayer() {
-      const worldBaseShp = (await this.axios.get("https://geo.hotdry.top:18105/geoserver/covid-19/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=covid-19%3AWorld_Countries__Generalized_&outputFormat=application%2Fjson")).data;
-      console.log(worldBaseShp);
+      this.worldBaseShp = (await this.axios.get("https://geo.hotdry.top:18105/geoserver/covid-19/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=covid-19%3AWorld_Countries__Generalized_&outputFormat=application%2Fjson")).data;
       this.vaccineData = (await this.axios.get("https://geo.hotdry.top:18100/covid-19-dashboard/data/vaccine.json")).data;
-      this.countryName = this.vaccineData.map((v) => v.country);
-      console.log(this.countryName)
-      this.globalVaccineLayer = new L.GeoJSON(worldBaseShp, {
+      this.vaccineCountryName = this.vaccineData.map((v) => v.country);
+      this.globalVaccineLayer = new L.GeoJSON(this.worldBaseShp, {
         style: this.vaccineStyle,
         onEachFeature: this.onEachFeatureOfTopoLayer
       }).addTo(this.map);
-      // this.globalVaccineLayer = new L.TopoJSON(null, {
-      //   style: this.vaccineStyle,
-      //   onEachFeature: this.onEachFeatureOfTopoLayer,
-      // });
-      // this.globalVaccineLayer.addData(topo);
-      // this.globalVaccineLayer.addTo(this.map);
-      this.addLayerControl();
+      this.controlLayers.addOverlay(this.globalVaccineLayer, '全球疫苗图');
     },
 
     vaccineStyle(feature) {
+      let id = feature.properties.id;
+      let d = 0;
+      let index = this.vaccineCountryName.findIndex(
+          (c) => c ===
+          this.jhuCountryInfo.name[
+              this.jhuCountryInfo.id.findIndex((e) => e === id)
+              ]);
+      if (index >= 0) {
+        d = Object.values(this.vaccineData[index].timeline)
+            / feature.properties.population;
+      }
+      let fColor = d > 0.30 ? color_scale(1)
+          : d > 0.20 ? color_scale(0.8)
+              : d > 0.12 ? color_scale(0.6)
+                  : d > 0.08 ? color_scale(0.4)
+                      : d > 0.05 ? color_scale(0.2)
+                          : d > 0.01 ? color_scale(0.1)
+                              : color_scale(0)
+      // console.log(feature, id, index, this.vaccineData[index], this.vaccineData)
       return {
-        fillColor: this.getColor(feature.properties.COUNTRY),
+        fillColor: fColor.hex(),
+        // fillColor: index < this.vaccineData.length ? Color(
+        //     {
+        //       r: 100,
+        //       g:Object.values(this.vaccineData[index].timeline)
+        //           / feature.properties.population,
+        //       b: 100
+        //     }).hex() : Color(0).hex(),
+        // fillColor: this.getColor(feature.properties.COUNTRY),
         weight: 2,
         opacity: 1,
         color: "white",
@@ -144,21 +146,12 @@ export default {
     },
 
     getColor(name) {
-      let index = this.countryName.findIndex(v => v === name);
+      let index = this.vaccineCountryName.findIndex(v => v === name);
       if (index < 0) {
         return "#FFF"
       }
       let d = Object.values(this.vaccineData[index].timeline) /
-          countryData[index].population;
-      // if (Object.prototype.hasOwnProperty.call(name, "NAME")) {
-      //   //let d = this.vaccineData[this.countryName.findIndex(element => element === name)].timeline["4/10/21"];
-      //   let dd = this.countryName.findIndex(
-      //     (element) => element === name["NAME"]
-      //   );
-      //   if (dd > -1) {
-      //     let d =
-      //       Object.values(this.vaccineData[dd].timeline) /
-      //       countryData[dd].population;
+          this.covidData[index].population;
 
       return d > 0.30 ? "#800026"
           : d > 0.20 ? "#BD0026"
@@ -170,13 +163,13 @@ export default {
                                   : "#FFEDA0";
     },
 
-    addCovidLayer() {
-      //country cycle
-      // // let countryData = {};
-      // axios.get("https://geo.hotdry.top:18100/covid-19/data/countries.json").then(response => {
-      // countryData = response.data
+    async addCovidLayer() {
+      let that = this;
+      this.covidData = ((await this.axios.get("https://geo.hotdry.top:18100/covid-19-dashboard/data/countries.json")).data);
+      this.jhuCountryInfo = { id: this.covidData.map((v) => v.countryInfo.iso2),
+        name: this.covidData.map((v) => v.country)};
       this.globalCovidLayer = L.layerGroup(
-          countryData.map((c) =>
+          that.covidData.map((c) =>
               L.circle([c.countryInfo.lat, c.countryInfo.long], {
                 radius: Math.sqrt(c.cases) * 300,
               }).bindPopup(
@@ -204,14 +197,15 @@ export default {
               )
           )
       ).addTo(this.map);
+      this.controlLayers.addOverlay(this.globalCovidLayer, '全球疫情图');
     },
 
     addLayerControl() {
       this.overlays = {
-        全球疫苗图: this.globalVaccineLayer,
-        全球疫情图: this.globalCovidLayer,
+        // 全球疫苗图: this.globalVaccineLayer,
+        // 全球疫情图: this.globalCovidLayer,
       };
-      L.control.layers(this.baseLayers, this.overlays).addTo(this.map);
+      this.controlLayers = L.control.layers(this.baseLayers, this.overlays).addTo(this.map);
     },
 
     onEachFeatureOfTopoLayer(feature, layer) {

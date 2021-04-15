@@ -11,7 +11,6 @@
       :title="'死亡： ' + glanceData.deaths"
       type="info"
   ></AppHeaderCard>
-<!--  <div style="margin-top: 0px">-->
     <span >疫苗接种率色阶： </span>
     <el-radio-group v-model="colorMap" @change="changeColorMap">
       <el-radio style="width: 100px" v-for="(c, i) in theColorMap"
@@ -19,7 +18,6 @@
         <AppColorGrad :color-map="c"></AppColorGrad>
       </el-radio>
     </el-radio-group>
-<!--  </div>-->
   <div id="map"></div>
 </template>
 
@@ -186,24 +184,6 @@ export default {
       };
     },
 
-    getColor(name) {
-      let index = this.vaccineCountryName.findIndex(v => v === name);
-      if (index < 0) {
-        return "#FFF"
-      }
-      let d = Object.values(this.vaccineData[index].timeline) /
-          this.covidData[index].population;
-
-      return d > 0.30 ? "#800026"
-          : d > 0.20 ? "#BD0026"
-              : d > 0.12 ? "#E31A1C"
-                  : d > 0.08 ? "#FC4E2A"
-                      : d > 0.05 ? "#FD8D3C"
-                          : d > 0.03 ? "#FEB24C"
-                              : d > 0.01 ? "#FED976"
-                                  : "#FFEDA0";
-    },
-
     async addCovidLayer() {
       let that = this;
       this.covidData = ((await this.axios.get("https://geo.hotdry.top:18100/covid-19-dashboard/data/countries.json")).data);
@@ -257,8 +237,32 @@ export default {
         mouseout: this.resetHighlight,
         click: this.zoomToFeature,
       });
-      let popupContent = `<strong>Country: </strong>${feature.properties.COUNTRY}`;
-      layer.bindPopup(popupContent);
+      let id = feature.properties.id;
+      let d = 0;
+      let index = this.vaccineCountryName.findIndex(
+          (c) => c ===
+              this.jhuCountryInfo.name[
+                  this.jhuCountryInfo.id.findIndex((e) => e === id)
+                  ]);
+      if (index >= 0) {
+        d = Object.values(this.vaccineData[index].timeline)
+            / feature.properties.population;
+      }
+      layer.bindPopup(
+          '<img style="height: 50px;" src=https://disease.sh/assets/img/flags/' +
+          feature.properties.id.toLowerCase() +
+          ".png alt=" +
+          feature.properties.id +
+          "><div><strong>" +
+          feature.properties.COUNTRY +
+          "</strong></div><li>疫苗接种率: " +
+          Math.round(d * 1000) / 10 +
+          "%</li><li>接种人数: " +
+          d * feature.properties.population +
+          "</li><li>国家人口: " +
+          feature.properties.population +
+          "</li>"
+      );
     },
     highlightFeature(e) {
       let layer = e.target;

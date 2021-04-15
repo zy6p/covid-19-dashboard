@@ -11,18 +11,49 @@
       :title="'死亡： ' + glanceData.deaths"
       type="info"
   ></AppHeaderCard>
+<!--  <div style="margin-top: 0px">-->
+    <span >疫苗接种率色阶： </span>
+    <el-radio-group v-model="colorMap" @change="changeColorMap">
+      <el-radio style="width: 100px" v-for="(c, i) in theColorMap"
+                :label="i" :key="i" >
+        <AppColorGrad :color-map="c"></AppColorGrad>
+      </el-radio>
+    </el-radio-group>
+<!--  </div>-->
   <div id="map"></div>
 </template>
 
 <script>
 import AppHeaderCard from "@/components/AppHeaderCard";
-// import axios from "axios";
+import AppColorGrad from "@/components/AppColorGrad";
+import 'element-plus/lib/theme-chalk/el-radio.css';
+import 'element-plus/lib/theme-chalk/el-radio-group.css';
 import L from "leaflet";
 import "@/m/fixleaflet";
 import "leaflet.chinatmsproviders";
 
-const chroma = require('chroma-js')
-const color_scale = chroma.scale('Spectral');
+const chroma = require('chroma-js');
+const theColorMap = [
+  'Spectral',
+  ['yellow', '008ae5'],
+  ['yellow', 'red', 'black'],
+  ['yellow', 'navy'],
+  'YlGn',
+  'RdYlBu'
+];
+const ratio2ColorMap = [
+  [0.00, 0.00],
+  [0.01, 0.10],
+  [0.03, 0.20],
+  [0.05, 0.30],
+  [0.08, 0.40],
+  [0.12, 0.50],
+  [0.18, 0.60],
+  [0.25, 0.70],
+  [0.50, 0.80],
+  [0.70, 0.90],
+  [0.80, 1.00],
+];
 
 const glanceData = require("../static/resource/all.json");
 export default {
@@ -32,15 +63,19 @@ export default {
       map: null,
       myStyle: null,
       glanceData,
+      theColorMap,
       baseLayers: null,
       globalVaccineLayer: null,
       globalCovidLayer: null,
+      colorMap: 1,
     };
   },
   components: {
+    AppColorGrad,
     AppHeaderCard,
   },
   mounted() {
+    this.chooseColorMap();
     this.initBaseMap();
     this.addLayerControl();
     this.addCovidLayer();
@@ -107,36 +142,42 @@ export default {
       this.controlLayers.addOverlay(this.globalVaccineLayer, '全球疫苗图');
     },
 
+    chooseColorMap() {
+      this.color_scale = chroma.scale(theColorMap[this.colorMap]);
+    },
+
+    changeColorMap(event) {
+      this.colorMap = event;
+      this.chooseColorMap();
+      this.globalVaccineLayer.setStyle(this.vaccineStyle);
+    },
+
     vaccineStyle(feature) {
       let id = feature.properties.id;
       let d = 0;
       let index = this.vaccineCountryName.findIndex(
           (c) => c ===
-          this.jhuCountryInfo.name[
-              this.jhuCountryInfo.id.findIndex((e) => e === id)
-              ]);
+              this.jhuCountryInfo.name[
+                  this.jhuCountryInfo.id.findIndex((e) => e === id)
+                  ]);
       if (index >= 0) {
         d = Object.values(this.vaccineData[index].timeline)
             / feature.properties.population;
       }
-      let fColor = d > 0.30 ? color_scale(1)
-          : d > 0.20 ? color_scale(0.8)
-              : d > 0.12 ? color_scale(0.6)
-                  : d > 0.08 ? color_scale(0.4)
-                      : d > 0.05 ? color_scale(0.2)
-                          : d > 0.01 ? color_scale(0.1)
-                              : color_scale(0)
-      // console.log(feature, id, index, this.vaccineData[index], this.vaccineData)
+      let fColor = d <= ratio2ColorMap[0][0] ? this.color_scale(ratio2ColorMap[0][1])
+          : d <= ratio2ColorMap[1][0] ? this.color_scale(ratio2ColorMap[1][1])
+          : d <= ratio2ColorMap[2][0] ? this.color_scale(ratio2ColorMap[2][1])
+          : d <= ratio2ColorMap[3][0] ? this.color_scale(ratio2ColorMap[3][1])
+          : d <= ratio2ColorMap[4][0] ? this.color_scale(ratio2ColorMap[4][1])
+          : d <= ratio2ColorMap[5][0] ? this.color_scale(ratio2ColorMap[5][1])
+          : d <= ratio2ColorMap[6][0] ? this.color_scale(ratio2ColorMap[6][1])
+          : d <= ratio2ColorMap[7][0] ? this.color_scale(ratio2ColorMap[7][1])
+          : d <= ratio2ColorMap[8][0] ? this.color_scale(ratio2ColorMap[8][1])
+          : d <= ratio2ColorMap[9][0] ? this.color_scale(ratio2ColorMap[9][1])
+          : d <= ratio2ColorMap[10][0] ? this.color_scale(ratio2ColorMap[10][1])
+          : this.color_scale(1);
       return {
         fillColor: fColor.hex(),
-        // fillColor: index < this.vaccineData.length ? Color(
-        //     {
-        //       r: 100,
-        //       g:Object.values(this.vaccineData[index].timeline)
-        //           / feature.properties.population,
-        //       b: 100
-        //     }).hex() : Color(0).hex(),
-        // fillColor: this.getColor(feature.properties.COUNTRY),
         weight: 2,
         opacity: 1,
         color: "white",
@@ -166,8 +207,10 @@ export default {
     async addCovidLayer() {
       let that = this;
       this.covidData = ((await this.axios.get("https://geo.hotdry.top:18100/covid-19-dashboard/data/countries.json")).data);
-      this.jhuCountryInfo = { id: this.covidData.map((v) => v.countryInfo.iso2),
-        name: this.covidData.map((v) => v.country)};
+      this.jhuCountryInfo = {
+        id: this.covidData.map((v) => v.countryInfo.iso2),
+        name: this.covidData.map((v) => v.country)
+      };
       this.globalCovidLayer = L.layerGroup(
           that.covidData.map((c) =>
               L.circle([c.countryInfo.lat, c.countryInfo.long], {
@@ -243,8 +286,8 @@ export default {
 
 <style scoped>
 #map {
-margin: 0;
-width: 100%;
-height: 80%;
+  margin: 0;
+  width: 100%;
+  height: 80%;
 }
 </style>

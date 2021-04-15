@@ -9,6 +9,7 @@ import Axios from 'axios'
 import VueAxios from 'vue-axios'
 
 import 'leaflet/dist/leaflet.css'
+import '@/assets/main.css'
 
 import router from "./router";
 

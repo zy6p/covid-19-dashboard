@@ -12,3 +12,5 @@ jobs:
         username: 'zy6p'
         reponame: 'covid-19-dashboard'
         token: ${{ secrets.AA_GITHUB_TOKEN }} # Leave this line unchanged
+        gitemail: goooog@88.com
+        gitname: zy6p

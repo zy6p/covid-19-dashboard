@@ -10,6 +10,7 @@ import VueAxios from 'vue-axios'
 
 import 'leaflet/dist/leaflet.css'
 import '@/assets/main.css'
+import '@/m/matomo'
 
 import router from "./router";
 

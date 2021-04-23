@@ -9,6 +9,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@vuese/cli": "^2.14.3",
     "axios": "^0.21.1",
     "chroma-js": "^2.1.1",
     "core-js": "^3.6.5",

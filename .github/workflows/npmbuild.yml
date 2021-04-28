@@ -26,5 +26,5 @@ jobs:
         git init
         git add -A
         git commit -m "deploy"
-        git push -f https://zy6p:${{ inputs.token }}@github.com/zy6p/covid-19-dashboard.git master:gh-pages
+        git push -f https://zy6p:${{ ACTION_GITHUB_TOKEN }}@github.com/zy6p/covid-19-dashboard.git master:gh-pages
       shell: bash

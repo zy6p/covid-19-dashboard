@@ -1,11 +1,12 @@
 {
   "name": "covid-19-dashboard",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
+    "getdata": "script/getdata.sh",
     "test": "jest"
   },
   "dependencies": {

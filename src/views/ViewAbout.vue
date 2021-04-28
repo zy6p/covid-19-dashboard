@@ -22,6 +22,9 @@
   <p>各国每日疫苗数据，包括当日接种疫苗累计人数，国名，数据链接 <a
       href="https://geo.hotdry.top:18100/covid-19-dashboard/data/vaccive.json">vaccive.json</a>。
   </p>
+  <video src="fdsa65gr89.mkv" width="800" height="450" controls>
+    <source src="fdsa65gr89.mkv" type="video/mkv">
+  </video>
 </template>
 
 <script>

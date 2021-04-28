@@ -15,7 +15,7 @@ jobs:
 
     - name: Build
       env:
-        ACTION_GITHUB_TOKEN: ${{ secret.AA_GITHUB_TOKEN }}
+        ACTION_GITHUB_TOKEN: ${{ secrets.AA_GITHUB_TOKEN }}
       run: |
         npm ci
         npm run build

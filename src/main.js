@@ -14,7 +14,7 @@ import '@/m/matomo'
 
 import router from "./router";
 
-Axios.defaults.baseURL = '/covid-19/data'
+Axios.defaults.baseURL = '/covid-19-dashboard'
 Axios.defaults.headers.get['Content-Type'] = 'application/json'
 
 const app = createApp(App);

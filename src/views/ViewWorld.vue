@@ -53,14 +53,13 @@ const ratio2ColorMap = [
   [0.80, 1.00],
 ];
 
-const glanceData = require("../static/resource/all.json");
 export default {
   name: "ViewWorld",
   data() {
     return {
       map: null,
       myStyle: null,
-      glanceData,
+      glanceData: {cases: 0, recovered: 0, deaths: 0},
       theColorMap,
       baseLayers: null,
       globalVaccineLayer: null,
@@ -73,6 +72,7 @@ export default {
     AppHeaderCard,
   },
   mounted() {
+    this.axios.get("data/all.json").then(r => this.glanceData = r.data );
     this.chooseColorMap();
     this.initBaseMap();
     this.addLayerControl();
@@ -131,7 +131,7 @@ export default {
 
     async addVaccineLayer() {
       this.worldBaseShp = (await this.axios.get("https://geo.hotdry.top:18105/geoserver/covid-19/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=covid-19%3AWorld_Countries__Generalized_&outputFormat=application%2Fjson")).data;
-      this.vaccineData = (await this.axios.get("https://geo.hotdry.top:18100/covid-19-dashboard/data/vaccine.json")).data;
+      this.vaccineData = (await this.axios.get("data/vaccine.json")).data;
       this.vaccineCountryName = this.vaccineData.map((v) => v.country);
       this.globalVaccineLayer = new L.GeoJSON(this.worldBaseShp, {
         style: this.vaccineStyle,
@@ -186,7 +186,7 @@ export default {
 
     async addCovidLayer() {
       let that = this;
-      this.covidData = ((await this.axios.get("https://geo.hotdry.top:18100/covid-19-dashboard/data/countries.json")).data);
+      this.covidData = ((await this.axios.get("data/countries.json")).data);
       this.jhuCountryInfo = {
         id: this.covidData.map((v) => v.countryInfo.iso2),
         name: this.covidData.map((v) => v.country)
@@ -235,7 +235,7 @@ export default {
       layer.on({
         mouseover: this.highlightFeature,
         mouseout: this.resetHighlight,
-        click: this.zoomToFeature,
+        // click: this.zoomToFeature,
       });
       let id = feature.properties.id;
       let d = 0;

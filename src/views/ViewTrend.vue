@@ -148,10 +148,11 @@ export default {
       }
 
       let showItem = ['cases', 'deaths', 'recovered'];
+      let showItemScale = [' (max: 10%)', ' (max: 0.4%)', ' (max: 10%)'];
 
       function series_template(name, item, data, count) {
         return {
-          name: name + ' ' + showItem[item],
+          name: name + ' ' + showItem[item] + showItemScale[item],
           type: 'line',
           xAxisIndex: count,
           yAxisIndex: count,
@@ -161,7 +162,7 @@ export default {
           emphasis: {
             focus: 'series'
           },
-          animationEasing: name + ' ' + showItem[item],
+          animationEasing: name + ' ' + showItem[item] + showItemScale[item],
           animationDuration: 1000
         }
       }
@@ -169,7 +170,7 @@ export default {
       function titles_template(name, item) {
         return {
           textAlign: 'center',
-          text: name + ' ' + showItem[item],
+          text: name + ' ' + showItem[item] + showItemScale[item],
           textStyle: {
             fontSize: 12,
             fontWeight: 'normal'
@@ -206,7 +207,7 @@ export default {
 
       let option = {
         title: titles.concat([{
-          text: 'Global Cases MiniCharts',
+          text: 'Covid-19 Statistic',
           top: 'bottom',
           left: 'center'
         }]),
@@ -217,7 +218,7 @@ export default {
         tooltip: {
           trigger: 'axis',
           axisPointer: {
-            type: 'cross',
+            // type: 'cross',
             label: {
               backgroundColor: '#6a7985'
             }
@@ -225,7 +226,8 @@ export default {
         },
         toolbox: {
           feature: {
-            saveAsImage: {}
+            saveAsImage: {},
+            restore: {},
           }
         }
       };

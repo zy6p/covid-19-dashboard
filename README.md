@@ -1,5 +1,7 @@
 # covid-19-dashboard
 
+A vue3, echarts and leaflet covid-19 dashboard.  
+
 **GIS design and practice** project.     
 GIS设计与实践大作业 - 疫情地图
 

@@ -1,5 +1,7 @@
 # covid-19-dashboard
 
+[![Build Vue](https://github.com/zy6p/covid-19-dashboard/actions/workflows/npmbuild.yml/badge.svg)](https://github.com/zy6p/covid-19-dashboard/actions/workflows/npmbuild.yml)
+
 A vue3, echarts and leaflet covid-19 dashboard.  
 
 **GIS design and practice** project.     
